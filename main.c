@@ -136,6 +136,23 @@ static int ap33772s_bus_write(void *ctx, uint8_t reg, const uint8_t *data, size_
     return 0;
 }
 
+static void ap33772s_delay_us(void *ctx, unsigned int usec)
+{
+    (void)ctx;
+    if (usec == 0) {
+        return;
+    }
+
+    struct timespec req = {
+        .tv_sec = usec / 1000000U,
+        .tv_nsec = (long)(usec % 1000000U) * 1000L
+    };
+
+    while (nanosleep(&req, &req) == -1 && errno == EINTR) {
+        continue;
+    }
+}
+
 static void print_usage(const char *prog)
 {
     fprintf(stderr,
@@ -1157,6 +1174,7 @@ int main(int argc, char **argv)
     struct ap33772s_bus_delegate delegate = {
         .read = ap33772s_bus_read,
         .write = ap33772s_bus_write,
+        .delay_us = ap33772s_delay_us,
         .ctx = &fd,
     };
 

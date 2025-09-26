@@ -63,15 +63,19 @@ Link against `ap33772s.c` and provide an `ap33772s_bus_delegate` implementation:
 ```c
 int my_bus_read(void *ctx, uint8_t reg, uint8_t *data, size_t len);
 int my_bus_write(void *ctx, uint8_t reg, const uint8_t *data, size_t len);
+void my_delay_us(void *ctx, unsigned int usec);
 
 struct ap33772s_bus_delegate delegate = {
     .read = my_bus_read,
     .write = my_bus_write,
+    .delay_us = my_delay_us,
     .ctx = my_context_pointer,
 };
 
 ap33772s_ref dev = ap33772s_init(&delegate);
 ```
+
+The `delay_us` delegate should block for at least the requested duration; the driver uses it between NTC calibration writes and while waiting for PDO updates during reset.
 
 After initialisation you can refresh capabilities, request PDOs, and query telemetry:
 

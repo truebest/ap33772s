@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 /**
  * @file ap33772s.c
@@ -19,28 +18,6 @@
  * the AP33772S USB Power Delivery sink controller. It handles PDO parsing, PD negotiation,
  * protection threshold configuration, and system monitoring.
  */
-
-/**
- * @brief Delay execution for specified microseconds
- * @param microseconds Delay time in microseconds
- *
- * Uses nanosleep for precise timing, handling interruptions.
- */
-static void ap33772s_delay_us(unsigned int microseconds)
-{
-    if (microseconds == 0) {
-        return;
-    }
-
-    struct timespec req = {
-        .tv_sec = microseconds / 1000000U,
-        .tv_nsec = (long)(microseconds % 1000000U) * 1000L
-    };
-
-    while (nanosleep(&req, &req) == -1 && errno == EINTR) {
-        continue;
-    }
-}
 
 static inline int ap33772s_call_read(ap33772s_ref dev, uint8_t reg, uint8_t *data, size_t len)
 {
@@ -297,7 +274,7 @@ int ap33772s_get_power_capabilities(ap33772s_ref dev)
 
 ap33772s_ref ap33772s_init(const struct ap33772s_bus_delegate *delegate)
 {
-    if (!delegate || !delegate->read || !delegate->write) {
+    if (!delegate || !delegate->read || !delegate->write || !delegate->delay_us) {
         errno = EINVAL;
         return NULL;
     }
@@ -370,7 +347,7 @@ int ap33772s_reset_device(ap33772s_ref dev)
         if (status_ret == 0 && (status & AP33772S_MASK_NEWPDO)) {
             break;
         }
-        ap33772s_delay_us(50000);  // 50ms delay
+        dev->bus.delay_us(dev->bus.ctx, 50000);
     }
 
     return 0;
@@ -544,19 +521,19 @@ int ap33772s_set_ntc(ap33772s_ref dev, int tr25, int tr50, int tr75, int tr100)
     if (ret < 0) {
         return ret;
     }
-    ap33772s_delay_us(5000);  // 5ms delay between NTC register writes
+    dev->bus.delay_us(dev->bus.ctx, 5000);
 
     ret = ap33772s_write_u16(dev, AP33772S_CMD_TR50, (uint16_t)tr50);
     if (ret < 0) {
         return ret;
     }
-    ap33772s_delay_us(5000);
+    dev->bus.delay_us(dev->bus.ctx, 5000);
 
     ret = ap33772s_write_u16(dev, AP33772S_CMD_TR75, (uint16_t)tr75);
     if (ret < 0) {
         return ret;
     }
-    ap33772s_delay_us(5000);
+    dev->bus.delay_us(dev->bus.ctx, 5000);
 
     ret = ap33772s_write_u16(dev, AP33772S_CMD_TR100, (uint16_t)tr100);
     if (ret < 0) {

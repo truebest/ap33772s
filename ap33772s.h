@@ -86,13 +86,14 @@ typedef struct ap33772s *ap33772s_ref;
 struct ap33772s_bus_delegate {
     int (*read)(void *ctx, uint8_t reg, uint8_t *data, size_t len);
     int (*write)(void *ctx, uint8_t reg, const uint8_t *data, size_t len);
+    void (*delay_us)(void *ctx, unsigned int usec);
     void *ctx;
 };
 
 
 /**
  * @brief Initialize an AP33772S device context
- * @param delegate Bus delegate providing I2C read/write callbacks and context
+ * @param delegate Bus delegate providing I2C callbacks, delay hook, and context
  * @return Device reference on success, NULL on failure (errno set)
  */
 ap33772s_ref ap33772s_init(const struct ap33772s_bus_delegate *delegate);
