@@ -10,6 +10,8 @@ CLI demo and reusable driver for the Diodes Inc. AP33772S USB Power Delivery 3.1
 - Interactive CLI with history, status view, and command helpers
 
 ## Building
+
+This toolkit can be built for various targets. For example, it has been tested on a Raspberry Pi setup.
 Requirements:
 - GNU `make`
 - C11 compiler (tested with `gcc`)
@@ -75,16 +77,19 @@ After initialisation you can refresh capabilities, request PDOs, and query telem
 
 ```c
 ap33772s_get_power_capabilities(dev);
-ap33772s_request_fixed_pdo(dev, 2, 3000);  // 9 V @ 3 A
+ap33772s_request_fixed_pdo(dev, 2, 3000);  // 9 V @ 3 A (Depends on device caps)
 int voltage_mv;
 ap33772s_read_vreq(dev, &voltage_mv);
+```
+
+When finished call
+```c
+ap33772s_destroy(dev);
 ```
 
 ## License
 
 This project is released under the Apache License 2.0. SPDX identifiers in the sources point to the full terms; include the required NOTICE and license text when redistributing.
-
-Call `ap33772s_destroy(dev);` when finished.
 
 ## Board Notes
 
