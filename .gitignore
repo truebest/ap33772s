@@ -1,0 +1,11 @@
+# Build artifacts
+*.o
+
+# Executables
+ap33772s_demo
+
+# Dependency files (if using -MMD)
+*.d
+
+# Editor files
+.vscode/launch.json
