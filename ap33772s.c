@@ -589,8 +589,8 @@ int ap33772s_read_vreq(ap33772s_ref dev, int *voltage_mv)
     if (!dev || !voltage_mv) {
         return -EINVAL;
     }
-    uint8_t raw = 0;
-    int ret = ap33772s_read_u8(dev, AP33772S_CMD_VREQ, &raw);
+    uint16_t raw = 0;
+    int ret = ap33772s_read_u16(dev, AP33772S_CMD_VREQ, &raw);
     if (ret < 0) {
         return ret;
     }
@@ -603,8 +603,8 @@ int ap33772s_read_ireq(ap33772s_ref dev, int *current_ma)
     if (!dev || !current_ma) {
         return -EINVAL;
     }
-    uint8_t raw = 0;
-    int ret = ap33772s_read_u8(dev, AP33772S_CMD_IREQ, &raw);
+    uint16_t raw = 0;
+    int ret = ap33772s_read_u16(dev, AP33772S_CMD_IREQ, &raw);
     if (ret < 0) {
         return ret;
     }
